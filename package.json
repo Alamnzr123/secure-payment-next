@@ -30,10 +30,11 @@
     "react-datepicker": "^8.8.0",
     "react-dom": "19.2.0",
     "react-hook-form": "^7.65.0",
-    "supertest": "^7.1.4",
     "vitest": "^4.0.3"
   },
   "devDependencies": {
+    "supertest": "^7.1.4",
+    "@types/supertest": "^2.0.12",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^6.0.0",
     "@types/bcryptjs": "^3.0.0",

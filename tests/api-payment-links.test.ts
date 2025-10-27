@@ -1,30 +1,54 @@
 import { describe, it, expect } from 'vitest';
+import type { NextApiRequest, NextApiResponse } from 'next';
 import handler from '../src/pages/api/payment-links/[token]';
+import type { Invoice } from '../src/types';
 
-// minimal mock for NextApiRequest/Response
 function makeReqRes(queryToken: string) {
-  const req: unknown = { query: { token: queryToken }, method: 'GET' };
+  const req: Partial<NextApiRequest> = { query: { token: queryToken }, method: 'GET' };
+
   let statusCode = 200;
   let body: unknown = null;
-  const res: unknown = {
-    status(code: number) { statusCode = code; return this; },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    json(payload: unknown) { body = payload; return this as any; },
-    setHeader() {},
-    end() {}
+
+  const res: Partial<NextApiResponse> = {};
+  res.status = (code: number) => {
+    statusCode = code;
+    return res as NextApiResponse;
   };
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return { req: req as any, res: res as any, get body() { return body; }, get status() { return statusCode; } };
+  res.json = (payload: unknown) => {
+    body = payload;
+    return res as NextApiResponse;
+  };
+  res.setHeader = (name: string, value: string | number | string[]) => {
+    // noop for tests
+    void name;
+    void value;
+    return res as NextApiResponse;
+  };
+  res.end = (() => res as unknown as NextApiResponse) as NextApiResponse['end'];
+
+  return {
+    req: req as NextApiRequest,
+    res: res as NextApiResponse,
+    get body() {
+      return body as unknown;
+    },
+    get status() {
+      return statusCode;
+    },
+  };
 }
 
 describe('payment-links handler (demo token)', () => {
   it('returns demo invoice for sample-token', async () => {
     const wrapper = makeReqRes('sample-token');
     await handler(wrapper.req, wrapper.res);
+
     expect(wrapper.status).toBe(200);
-    expect(wrapper.body).toHaveProperty('invoice');
-    const body = wrapper.body as Record<string, unknown> | null;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    expect((body?.invoice as any)?.invoiceNumber).toBe('INV-12345');
+    const body = wrapper.body as { invoice?: Invoice } | null;
+    expect(body).not.toBeNull();
+    expect(body).toHaveProperty('invoice');
+    const invoice = body?.invoice;
+    expect(invoice).toBeTruthy();
+    expect(invoice?.invoiceNumber).toBe('INV-12345');
   });
 });

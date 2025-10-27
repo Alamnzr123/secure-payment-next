@@ -152,7 +152,7 @@ const InvoicePage = () => {
             {payError && <div className="text-sm text-red-600 mb-2">{payError}</div>}
 
             {confirmation ? (
-              <div className="p-3 bg-green-50 border border-green-200 rounded text-sm">
+              <div className="p-3 bg-amber-700 border border-green-200 rounded text-sm">
                 <strong>Payment completed</strong>
                 <div>
                   Payment of ${confirmation.amount ?? invoice.amount ?? '—'} for Invoice #{confirmation.invoiceNumber ?? invoice.invoiceNumber ?? invoice.id} completed successfully.
