@@ -24,17 +24,17 @@
     "cookie": "^1.0.2",
     "date-fns": "^4.1.0",
     "jsonwebtoken": "^9.0.2",
+    "libphonenumber-js": "^1.12.25",
     "next": "16.0.0",
     "pg": "^8.16.3",
     "react": "19.2.0",
     "react-datepicker": "^8.8.0",
     "react-dom": "19.2.0",
     "react-hook-form": "^7.65.0",
+    "react-phone-number-input": "^3.4.13",
     "vitest": "^4.0.3"
   },
   "devDependencies": {
-    "supertest": "^7.1.4",
-    "@types/supertest": "^2.0.12",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^6.0.0",
     "@types/bcryptjs": "^3.0.0",
@@ -43,10 +43,12 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/supertest": "^2.0.12",
     "eslint": "^9",
     "eslint-config-next": "16.0.0",
     "jsdom": "^22.1.0",
     "prisma": "^6.18.0",
+    "supertest": "^7.1.4",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

@@ -1,15 +1,19 @@
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { Invoice } from "@/types";
 import { useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Link from "next/link";
 import { apiFetch } from "@/lib/api";
+import PhoneInput, { isValidPhoneNumber } from 'react-phone-number-input';
+import 'react-phone-number-input/style.css';
 
 type FormValues = {
   invoiceId?: string;
   customerName?: string;
-  contactDetails?: string;
+  customerEmail?: string;
+  customerPhone?: string;
+  customerCountryCode?: string;
   invoiceDate?: string;
   dueDate?: string;
   amountDue?: string;
@@ -26,6 +30,8 @@ export default function InvoiceForm({ onSubmit, initialData }: Props) {
   const {
     register,
     handleSubmit,
+  setError,
+  control,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>();
 
@@ -36,10 +42,25 @@ export default function InvoiceForm({ onSubmit, initialData }: Props) {
   // submit handler persists to API and calls parent with created invoice
   const submitHandler = async (data: FormValues) => {
     try {
+      // require at least one contact: email or phone
+      if (!data.customerEmail && !data.customerPhone) {
+        setError('customerEmail', { type: 'manual', message: 'Provide an email or phone' });
+        setError('customerPhone', { type: 'manual', message: 'Provide an email or phone' });
+        return;
+      }
+
+      // use phone already provided by react-phone-number-input which provides E.164 format
+      let normalizedPhone: string | undefined = undefined;
+      if (data.customerPhone) {
+        // react-phone-number-input keeps E.164 when a country is chosen or + prefixed
+        normalizedPhone = data.customerPhone;
+      }
+
       const payload = {
         invoiceNumber: data.invoiceId || undefined,
         customerName: data.customerName,
-        customerEmail: data.contactDetails || undefined,
+        customerEmail: data.customerEmail || undefined,
+  customerPhone: normalizedPhone || undefined,
         invoiceDate: invoiceDateVal ? invoiceDateVal.toISOString() : undefined,
         dueDate: dueDateVal ? dueDateVal.toISOString() : undefined,
         amount: data.amountDue,
@@ -91,13 +112,42 @@ export default function InvoiceForm({ onSubmit, initialData }: Props) {
         />
       </div>
       <div>
-        <label>Contact Details</label>
+        <label>Email (optional)</label>
         <input
-          type="text"
-          defaultValue={initialData?.contactDetails}
-          {...register("contactDetails", { required: true })}
+          type="email"
+          defaultValue={initialData?.customerEmail}
+          {...register("customerEmail", { pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Invalid email' } })}
           className="border p-2 w-full"
         />
+        {errors.customerEmail && <p className="text-sm text-red-500">{errors.customerEmail.message}</p>}
+      </div>
+      <div>
+        <label>Phone (optional)</label>
+        <Controller
+          control={control}
+          name="customerPhone"
+          defaultValue={initialData?.customerPhone || ''}
+          rules={{
+            validate: (v) => {
+              if (!v) return true; // optional
+              try {
+                return isValidPhoneNumber(v) || 'Invalid phone number';
+              } catch {
+                return 'Invalid phone number';
+              }
+            }
+          }}
+          render={({ field }) => (
+            <PhoneInput
+              {...field}
+              international
+              defaultCountry={undefined}
+              className="w-full"
+            />
+          )}
+        />
+        <p className="text-xs text-gray-500">Choose country and enter number (or paste +E.164 format)</p>
+        {errors.customerPhone && <p className="text-sm text-red-500">{String(errors.customerPhone?.message)}</p>}
       </div>
       <div>
         <label>Invoice Date</label>
