@@ -100,6 +100,42 @@ export default function Home() {
               </Link>
             </div>
           </div>
+
+          <div className="p-6 border rounded-lg">
+            <h2 className="text-lg font-semibold mb-2">Make a Payment</h2>
+            <p className="text-sm text-zinc-600 mb-4">Quickly make a one-off payment via Stripe Checkout (test mode).</p>
+
+            <form id="make-payment-form" className="space-y-3" onSubmit={async (e) => {
+              e.preventDefault();
+              const form = e.currentTarget as HTMLFormElement & { amount: HTMLInputElement; description: HTMLInputElement };
+              const amount = form.amount.value;
+              const description = form.description.value;
+              try {
+                const res = await fetch('/api/stripe/create-checkout-session', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ amount, description }),
+                });
+                const data = await res.json();
+                if (data?.url) window.location.href = data.url;
+                else alert('Failed to create checkout session: ' + (data?.message ?? 'unknown'));
+              } catch (err) {
+                alert(err instanceof Error ? err.message : 'Request failed');
+              }
+            }}>
+              <div>
+                <label className="block text-sm text-zinc-600">Amount (USD)</label>
+                <input name="amount" type="number" step="0.01" min="0.01" required className="border p-2 w-full" />
+              </div>
+              <div>
+                <label className="block text-sm text-zinc-600">Description</label>
+                <input name="description" type="text" className="border p-2 w-full" placeholder="What is this payment for?" />
+              </div>
+              <div>
+                <button type="submit" className="px-4 py-2 bg-green-600 text-white rounded">Make a Payment</button>
+              </div>
+            </form>
+          </div>
         </section>
 
         <section className="mt-8 p-6 border rounded-lg">

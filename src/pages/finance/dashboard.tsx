@@ -66,6 +66,12 @@ const Dashboard = () => {
               <option value="pending">Pending</option>
               <option value="overdue">Overdue</option>
             </select>
+            <button
+              onClick={() => router.push('/finance/webhooks')}
+              className="ml-2 bg-gray-800 text-white px-3 py-2 rounded"
+            >
+              Webhooks (test)
+            </button>
             {isFetching && (
               <svg className="animate-spin h-5 w-5 text-gray-600 ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>

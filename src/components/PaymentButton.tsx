@@ -1,12 +1,21 @@
 import React from 'react';
 
 interface PaymentButtonProps {
-  paymentLink: string;
+  paymentLink?: string;
+  invoiceId?: string;
 }
 
-const PaymentButton: React.FC<PaymentButtonProps> = ({ paymentLink }) => {
+const PaymentButton: React.FC<PaymentButtonProps> = ({ paymentLink, invoiceId }) => {
   const handlePayment = () => {
-    window.location.href = paymentLink;
+    if (paymentLink) {
+      window.location.href = paymentLink;
+      return;
+    }
+    if (invoiceId) {
+      window.location.href = `/checkout/${invoiceId}`;
+      return;
+    }
+    // fallback: do nothing
   };
 
   return (
